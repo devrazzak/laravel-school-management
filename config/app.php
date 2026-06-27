@@ -123,4 +123,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    | This option specifies the frontend URL for your application. It is used
+    | to generate links in emails, notifications, and other places where a frontend URL is needed.
+    | You should set this to the root of your frontend application so that it's available throughout the application.
+    |   
+    */
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+
 ];

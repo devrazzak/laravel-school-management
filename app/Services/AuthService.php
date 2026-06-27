@@ -3,9 +3,14 @@
 namespace App\Services;
 
 use App\Enums\UserRole;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 
 class AuthService
 {
@@ -75,5 +80,47 @@ class AuthService
             'refresh_token' => $refreshToken,
             'expires_in' => now()->addDays(1)->timestamp,
         ];
+    }
+
+    public function sendResetLink(array $data): void
+    {
+        $status = Password::sendResetLink([
+            'email' => $data['email']
+        ]);
+
+        if ($status !== Password::RESET_THROTTLED) {
+            throw ValidationException::withMessages([
+                'email' => ['Try again later.'],
+            ]);
+        }
+    }
+
+    public function resetPassword(array $data): void
+    {
+        $status = Password::reset(
+            [
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'password_confirmation' => $data['password_confirmation'],
+                'token' => $data['token'],
+            ],
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+
+                event(new PasswordReset($user));
+
+                $user->tokens()->delete();
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages([
+                'email' => [__($status)],
+            ]);
+        }
     }
 }

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Traits\ApiResponse;
@@ -62,5 +64,19 @@ class AuthController extends Controller
             'email' => $user->email,
             'role' => $user->role,
         ];
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        $this->authService->sendResetLink($request->validated());
+
+        return $this->successResponse(null, 'Password reset link sent successfully.');
+    }
+
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $this->authService->resetPassword($request->validated());
+
+        return $this->successResponse(null, 'Password reset successfully.');
     }
 }
