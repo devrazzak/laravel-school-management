@@ -22,10 +22,12 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = $this->user();
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role' => ['if:$user->hasRole("admin"):required', 'string', 'in:student,teacher,admin'],
         ];
     }
 }

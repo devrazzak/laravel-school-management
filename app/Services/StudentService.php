@@ -12,6 +12,7 @@ class StudentService
     {
         $perPage = min($request->input('per_page', 10), 100); // Limit to a maximum of 100 per page
         return Student::query()
+            ->with('user') // Eager load the related user data
             ->search($request->query('search'))
             ->status($request->query('status'))
             ->when(

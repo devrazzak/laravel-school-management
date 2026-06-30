@@ -3,24 +3,27 @@
 namespace App\Services;
 
 use App\Enums\UserRole;
-use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
+use App\Services\UserService;
 
 class AuthService
 {
+
+    public function __construct(private readonly UserService $userService) {}
+
     public function register(array $data): array
     {
-        $user = User::create([
+        $user = $this->userService->create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => $data['password'],
             'role' => UserRole::Student->value,
+            'profile' => $data['profile'] ?? [],
         ]);
 
         return [
