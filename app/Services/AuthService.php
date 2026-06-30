@@ -23,6 +23,7 @@ class AuthService
             'email' => $data['email'],
             'password' => $data['password'],
             'role' => UserRole::Student->value,
+            'status' => $data['status'] ?? null,
             'profile' => $data['profile'] ?? [],
         ]);
 

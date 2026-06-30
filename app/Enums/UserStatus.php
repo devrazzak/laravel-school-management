@@ -2,10 +2,10 @@
 
 namespace App\Enums;
 
-enum UserStatus
+enum UserStatus: string
 {
-    case Active;
-    case Inactive;
+    case Active = 'active';
+    case Inactive = 'inactive';
 
     public function label(): string
     {
