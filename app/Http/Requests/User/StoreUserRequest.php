@@ -30,7 +30,7 @@ class StoreUserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'string', Rule::enum(UserRole::class)],
-            'status' => ['nullable', 'string', Rule::enum([UserStatus::class])],
+            'status' => ['nullable', 'string', Rule::enum(UserStatus::class)],
             'profile' => ['nullable', 'array'],
         ];
 
