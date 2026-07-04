@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UserService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use PHPUnit\TextUI\XmlConfiguration\RemoveBeStrictAboutResourceUsageDuringSmallTestsAttribute;
 
 class UserController extends Controller
 {
@@ -48,15 +48,19 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        //
+        $this->authorize('view', $user);
+        return $this->successResponse(new UserResource($user), 'User retrieved successfully.');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        //
+        $this->authorize('update', $user);
+        $user = $this->userService->update($user, $request->validated());
+
+        return $this->successResponse(new UserResource($user), 'User updated successfully.');
     }
 
     /**
@@ -64,6 +68,9 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        $this->authorize('delete', $user);
+        $this->userService->delete($user);
+
+        return $this->successResponse(null, 'User deleted successfully.');
     }
 }

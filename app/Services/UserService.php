@@ -41,7 +41,7 @@ class UserService
                 'status' => $data['status'] ?? UserStatus::Active->value,
             ]);
 
-            $this->createProfileForUser($user, $data['profile'] ?? []);
+            $this->createOrUpdateProfileForUser($user, $data['profile'] ?? []);
 
             $relation = $this->profileRelation($user->role);
 
@@ -51,8 +51,20 @@ class UserService
 
     public function update(User $user, array $data): User
     {
-        $user->update($data);
-        return $user;
+        return DB::transaction(function () use ($user, $data) {
+            $user->update([
+                'name' => $data['name'] ?? $user->name,
+                'email' => $data['email'] ?? $user->email,
+                'role' => $data['role'] ?? $user->role,
+                'status' => $data['status'] ?? $user->status,
+            ]);
+
+            $this->createOrUpdateProfileForUser($user, $data['profile'] ?? []);
+
+            $relation = $this->profileRelation($user->role);
+
+            return $relation ? $user->load($relation) : $user;
+        });
     }
 
     public function delete(User $user): void
@@ -67,14 +79,16 @@ class UserService
         return in_array($column, $allowed, true) ? $column : 'created_at';
     }
 
-    private function createProfileForUser(User $user, array $profileData): void
+    private function createOrUpdateProfileForUser(User $user, array $profileData): void
     {
         match ($user->role) {
-            UserRole::Student => $user->student()->create($profileData),
-            UserRole::Teacher => $user->teacher()->create($profileData),
+            UserRole::Student => $user->student()->updateOrCreate([], $profileData),
+            UserRole::Teacher => $user->teacher()->updateOrCreate([], $profileData),
             default => null,
         };
     }
+
+
 
     private function profileRelation(UserRole $role): ?string
     {
