@@ -7,12 +7,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\ResendSetPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -66,6 +70,58 @@ class AuthController extends Controller
         ];
     }
 
+    public function resendSetPasswordLink(ResendSetPasswordRequest $request): JsonResponse
+    {
+        $this->authService->resendSetPasswordLink($request->validated());
+
+        return $this->successResponse(null, 'Set password link resent successfully.');
+    }
+
+    public function verifySetPasswordLink(Request $request): JsonResponse
+    {
+
+        $user = User::findOrFail($request->query('user'));
+
+        if (!is_null($user->password)) {
+            return $this->errorResponse('Password has already been set for this user.', 403);
+        }
+
+        $token = Str::random(64);
+
+        Cache::put($this->setPasswordCacheKey($user->id, $token), true, now()->addMinutes(15));
+
+        return $this->successResponse([
+            'set_password_token' => $token,
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'name' => $user->name,
+            'expires_in' => 15 * 60, // 15 minutes in seconds
+        ], 'Set password link is valid.');
+    }
+
+    public function setPassword(SetPasswordRequest $request): JsonResponse
+    {
+        $user = User::findOrFail($request->user_id);
+
+
+
+        if (!is_null($user->password)) {
+            return $this->errorResponse('Password has already been set for this user.', 403);
+        }
+
+        $cacheKey = $this->setPasswordCacheKey($user->id, $request->input('set_password_token'));
+
+        if (! Cache::has($cacheKey)) {
+            return $this->errorResponse('Invalid or expired set password token.', 403);
+        }
+
+        $this->authService->setPassword($user, $request->validated());
+
+        Cache::forget($cacheKey);
+
+        return $this->successResponse(null, 'Password set successfully.');
+    }
+
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         $this->authService->sendResetLink($request->validated());
@@ -78,5 +134,10 @@ class AuthController extends Controller
         $this->authService->resetPassword($request->validated());
 
         return $this->successResponse(null, 'Password reset successfully.');
+    }
+
+    private function setPasswordCacheKey(int $userId, string $token): string
+    {
+        return "set-password-token:{$userId}:{token}";
     }
 }

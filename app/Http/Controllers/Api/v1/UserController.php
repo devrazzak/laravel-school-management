@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Enums\UserCreationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
@@ -38,7 +39,8 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         $this->authorize('create', User::class);
-        $user = $this->userService->create($request->validated());
+
+        $user = $this->userService->create($request->validated(), UserCreationType::AdminCreation);
 
         return $this->successResponse(new UserResource($user), 'User created successfully.', 201);
     }

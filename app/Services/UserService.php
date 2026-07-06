@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\UserCreationType;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Events\UserCreatedByAdmin;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -30,13 +32,13 @@ class UserService
     }
 
 
-    public function create(array $data): User
+    public function create(array $data, UserCreationType $type = UserCreationType::SelfRegistered): User
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $type) {
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                'password' => $data['password'],
+                'password' => $type === UserCreationType::SelfRegistered ? $data['password'] : null,
                 'role' => $data['role'],
                 'status' => $data['status'] ?? UserStatus::Active->value,
             ]);
@@ -45,7 +47,14 @@ class UserService
 
             $relation = $this->profileRelation($user->role);
 
-            return $relation ? $user->load($relation) : $user;
+            $user = $relation ? $user->load($relation) : $user;
+
+            // Trigger the event if the user was created by an admin
+            if ($type === UserCreationType::AdminCreation) {
+                event(new UserCreatedByAdmin($user));
+            }
+
+            return $user;
         });
     }
 

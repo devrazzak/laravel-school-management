@@ -114,4 +114,18 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Set Password Link Expiration
+    |--------------------------------------------------------------------------
+    |
+    | This option defines the expiration time for the set password link sent        
+    | to users when they are created by an admin. The value is in hours.
+    |
+    */
+
+    'set_password' => [
+        'expire' =>  (int) (env('SET_PASSWORD_LINK_EXPIRE_HOURS', 24)),
+    ],
+
 ];
