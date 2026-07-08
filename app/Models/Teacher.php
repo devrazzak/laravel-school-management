@@ -16,9 +16,7 @@ class Teacher extends Model
         'employee_id',
         'designation',
         'department',
-        'phone',
         'joining_date',
-        'profile_picture',
     ];
 
     protected function casts(): array

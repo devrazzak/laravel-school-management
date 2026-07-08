@@ -16,13 +16,11 @@ class Student extends Model
     protected $fillable = [
         'user_id',
         'registration_number',
-        'phone',
         'date_of_birth',
         'gender',
         'department',
         'cgpa',
         'status',
-        'profile_picture',
     ];
 
     protected $attributes = [

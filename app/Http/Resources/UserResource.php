@@ -26,20 +26,23 @@ class UserResource extends JsonResource
                 'label' => $this->status->label(),
             ],
             'profile_picture' => $this->profile_picture ? asset('storage/' . $this->profile_picture) : null,
-            // $this->mergeWhen($this->profileData() !== null, [
-            //     'profile' => $this->profileData(),
-            // ]),
+            $this->mergeWhen($this->profileData() !== null, [
+                'profile' => $this->profileData(),
+            ]),
         ];
     }
 
     private function profileData(): ?array
     {
+        if (! $this->resource->relationLoaded($this->role->relation())) {
+            return null;
+        }
+
         $profile = $this->resource->profile();
 
-        return match (true) {
-            $profile === null => null,
-            $this->role === UserRole::Student => (new StudentResource($profile))->resolve(),
-            $this->role === UserRole::Teacher => (new TeacherResource($profile))->resolve(),
+        return match ($this->role) {
+            UserRole::Student => (new StudentResource($profile))->resolve(),
+            UserRole::Teacher => (new TeacherResource($profile))->resolve(),
             default => null,
         };
     }

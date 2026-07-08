@@ -25,9 +25,9 @@ class UpdateMyProfileRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
             'email' => ['prohibited'],
             'registration_number' => ['prohibited'],
-            'phone' => ['nullable', 'string', 'max:20'],
             'department' => ['nullable', 'string', 'max:100'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
             'gender' => ['nullable', Rule::in(['male', '    female', 'other'])],

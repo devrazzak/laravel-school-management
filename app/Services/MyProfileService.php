@@ -23,13 +23,13 @@ class MyProfileService
         return DB::transaction(function () use ($user, $data) {
             $user->update([
                 'name' => $data['name'] ?? $user->name,
+                'phone' => $data['phone'] ?? $user->phone,
+                "profile_picture" => $data['profile_picture'] ?? $user->profile_picture,
             ]);
 
             $profileData = [
-                "phone" => $data['phone'] ?? null,
                 "date_of_birth" => $data['date_of_birth'] ?? null,
                 "gender" => $data['gender'] ?? null,
-                "profile_picture" => $data['profile_picture'] ?? null,
                 "department" => $data['department'] ?? null
             ];
 
