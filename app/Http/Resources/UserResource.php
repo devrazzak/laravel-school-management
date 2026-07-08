@@ -19,12 +19,16 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'phone' => $this->phone,
             'role' => $this->role,
             'status' => [
                 'value' => $this->status->value,
                 'label' => $this->status->label(),
             ],
-            'profile' => $this->profileData(),
+            'profile_picture' => $this->profile_picture ? asset('storage/' . $this->profile_picture) : null,
+            // $this->mergeWhen($this->profileData() !== null, [
+            //     'profile' => $this->profileData(),
+            // ]),
         ];
     }
 

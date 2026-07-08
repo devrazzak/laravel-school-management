@@ -42,9 +42,11 @@ class UserService
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
                 'password' => $type === UserCreationType::SelfRegistered ? $data['password'] : null,
                 'role' => $data['role'],
                 'status' => $data['status'] ?? UserStatus::Active->value,
+                'profile_picture' => $data['profile_picture'] ?? null,
             ]);
 
             // Generate registration number or employee ID based on role
@@ -75,8 +77,9 @@ class UserService
             $user->update([
                 'name' => $data['name'] ?? $user->name,
                 'email' => $data['email'] ?? $user->email,
-                // 'role' => $data['role'] ?? $user->role,
+                'phone' => $data['phone'] ?? null,
                 'status' => $data['status'] ?? $user->status,
+                'profile_picture' => $data['profile_picture'] ?? null,
             ]);
 
             $profileData = $data['profile'] ?? [];

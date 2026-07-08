@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MyProfileService
 {
@@ -17,6 +19,34 @@ class MyProfileService
 
     public function update(User $user, array $data)
     {
-        // Logic to update the user's profile information
+
+        return DB::transaction(function () use ($user, $data) {
+            $user->update([
+                'name' => $data['name'] ?? $user->name,
+            ]);
+
+            $profileData = [
+                "phone" => $data['phone'] ?? null,
+                "date_of_birth" => $data['date_of_birth'] ?? null,
+                "gender" => $data['gender'] ?? null,
+                "profile_picture" => $data['profile_picture'] ?? null,
+                "department" => $data['department'] ?? null
+            ];
+
+            $this->updateProfileForUser($user, $profileData);
+
+            $relation = $user->role->relation();
+
+            return $relation ? $user->load($relation) : $user;
+        });
+    }
+
+    private function updateProfileForUser(User $user, array $profileData): void
+    {
+        match ($user->role) {
+            UserRole::Student => $user->student()->updateOrCreate([], $profileData),
+            UserRole::Teacher => $user->teacher()->updateOrCreate([], $profileData),
+            default => null,
+        };
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
@@ -65,8 +64,11 @@ class AuthController extends Controller
         return [
             'id' => $user->id,
             'name' => $user->name,
+            'phone' => $user->phone,
             'email' => $user->email,
             'role' => $user->role,
+            'profile_picture' => $user->profile_picture,
+            'status' => $user->status,
         ];
     }
 

@@ -31,9 +31,10 @@ class UpdateUserRequest extends FormRequest
 
         $base = [
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
-            // 'role' => ['sometimes', 'required', 'string', Rule::enum(UserRole::class)],
+            'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->Ignore($userId)],
+            'phone' => ['nullable', 'string', 'max:20'],
             'status' => ['nullable', 'string', Rule::enum(UserStatus::class)],
+            'profile_picture' => ['nullable', 'string', 'max:255'],
             'profile' => ['nullable', 'array'],
         ];
 
@@ -43,19 +44,16 @@ class UpdateUserRequest extends FormRequest
                 'profile.registration_number' => ['prohibited'],
                 'profile.department' => ['nullable', 'string', 'max:100'],
                 'profile.cgpa' => ['nullable', 'numeric', 'between:0,4'],
-                'profile.phone' => ['nullable', 'string', 'max:20'],
                 'profile.date_of_birth' => ['nullable', 'date', 'before:today'],
                 'profile.gender' => ['nullable', 'string', Rule::in(['male', 'female', 'other'])],
-                'profile.profile_picture' => ['nullable', 'string', 'max:255'],
+
             ],
             UserRole::Teacher => [
                 ...$base,
                 'profile.employee_id' => ['prohibited'],
                 'profile.designation' => ['nullable', 'string', 'max:100'],
                 'profile.department' => ['nullable', 'string', 'max:100'],
-                'profile.phone' => ['nullable', 'string', 'max:20'],
                 'profile.joining_date' => ['nullable', 'date'],
-                'profile.profile_picture' => ['nullable', 'string', 'max:255'],
             ],
             default => $base,
         };

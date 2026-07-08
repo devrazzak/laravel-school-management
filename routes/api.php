@@ -3,7 +3,7 @@
 use App\Http\Controllers\Api\v1\AuthController;
 use App\Http\Controllers\Api\v1\StudentController;
 use App\Http\Controllers\Api\v1\UserController;
-use App\Http\Controllers\MyProfileController;
+use App\Http\Controllers\Api\v1\MyProfileController;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 

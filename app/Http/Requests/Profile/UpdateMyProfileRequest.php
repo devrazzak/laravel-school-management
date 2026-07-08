@@ -28,6 +28,7 @@ class UpdateMyProfileRequest extends FormRequest
             'email' => ['prohibited'],
             'registration_number' => ['prohibited'],
             'phone' => ['nullable', 'string', 'max:20'],
+            'department' => ['nullable', 'string', 'max:100'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
             'gender' => ['nullable', Rule::in(['male', '    female', 'other'])],
             'profile_picture' => ['nullable', 'string', 'max:255'],

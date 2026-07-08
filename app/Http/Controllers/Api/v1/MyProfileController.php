@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\v1;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Profile\UpdateMyProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Services\MyProfileService;
 use App\Traits\ApiResponse;
@@ -20,15 +22,13 @@ class MyProfileController extends Controller
     {
         $user = $this->myProfileService->show($request->user());
 
-        echo ($request->user());
-
         return $this->successResponse(new UserResource($user), 'Profile retrieved successfully.');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(UpdateMyProfileRequest $request)
     {
         $user = $request->user();
 

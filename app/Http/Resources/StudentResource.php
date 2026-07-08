@@ -20,8 +20,8 @@ class StudentResource extends JsonResource
             'name' => $this->whenLoaded('user', fn() => $this->user->name),
             'email' => $this->whenLoaded('user', fn() => $this->user->email),
             'role' => $this->whenLoaded('user', fn() => $this->user->role),
+            'phone' => $this->whenLoaded('user', fn() => $this->user->phone),
             'registration_number' => $this->registration_number,
-            'phone' => $this->phone,
             'date_of_birth' => $this->date_of_birth?->format('Y-m-d'),
             'gender' => $this->gender,
             'department' => $this->department,
@@ -30,7 +30,7 @@ class StudentResource extends JsonResource
                 'value' => $this->status->value,
                 'label' => $this->status->label(),
             ],
-            'profile_picture' => $this->profile_picture ? asset('storage/' . $this->profile_picture) : null,
+            'profile_picture' => $this->whenLoaded('user', fn() => $this->user->profile_picture ? asset('storage/' . $this->user->profile_picture) : null),
             'created_at' => $this->created_at?->toISO8601String(),
             'updated_at' => $this->updated_at?->toISO8601String(),
         ];
