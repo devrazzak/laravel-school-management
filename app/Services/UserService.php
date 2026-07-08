@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 class UserService
 {
+    public function __construct(
+        private readonly RegistrationNumberService $registrationNumberService
+    ) {}
+
     public function list(Request $request): LengthAwarePaginator
     {
         $perPage = min($request->input('per_page', 10), 100); // Limit to a maximum of 100 per page
@@ -43,9 +47,16 @@ class UserService
                 'status' => $data['status'] ?? UserStatus::Active->value,
             ]);
 
+            // Generate registration number or employee ID based on role
+            match ($user->role) {
+                UserRole::Student => $data['profile']['registration_number'] = $this->registrationNumberService->generateStudentNumber(),
+                UserRole::Teacher => $data['profile']['employee_id'] = $this->registrationNumberService->generateEmployeeId(),
+                default => null,
+            };
+
             $this->createOrUpdateProfileForUser($user, $data['profile'] ?? []);
 
-            $relation = $this->profileRelation($user->role);
+            $relation = $user->role->relation();
 
             $user = $relation ? $user->load($relation) : $user;
 
@@ -64,13 +75,20 @@ class UserService
             $user->update([
                 'name' => $data['name'] ?? $user->name,
                 'email' => $data['email'] ?? $user->email,
-                'role' => $data['role'] ?? $user->role,
+                // 'role' => $data['role'] ?? $user->role,
                 'status' => $data['status'] ?? $user->status,
             ]);
 
-            $this->createOrUpdateProfileForUser($user, $data['profile'] ?? []);
+            $profileData = $data['profile'] ?? [];
 
-            $relation = $this->profileRelation($user->role);
+            unset(
+                $profileData['registration_number'],
+                $profileData['employee_id']
+            );
+
+            $this->createOrUpdateProfileForUser($user, $profileData);
+
+            $relation = $user->role->relation();
 
             return $relation ? $user->load($relation) : $user;
         });
@@ -93,17 +111,6 @@ class UserService
         match ($user->role) {
             UserRole::Student => $user->student()->updateOrCreate([], $profileData),
             UserRole::Teacher => $user->teacher()->updateOrCreate([], $profileData),
-            default => null,
-        };
-    }
-
-
-
-    private function profileRelation(UserRole $role): ?string
-    {
-        return match ($role) {
-            UserRole::Student => 'student',
-            UserRole::Teacher => 'teacher',
             default => null,
         };
     }

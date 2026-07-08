@@ -32,7 +32,7 @@ class UpdateUserRequest extends FormRequest
         $base = [
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
-            'role' => ['sometimes', 'required', 'string', Rule::enum(UserRole::class)],
+            // 'role' => ['sometimes', 'required', 'string', Rule::enum(UserRole::class)],
             'status' => ['nullable', 'string', Rule::enum(UserStatus::class)],
             'profile' => ['nullable', 'array'],
         ];
@@ -40,7 +40,7 @@ class UpdateUserRequest extends FormRequest
         return match ($this->enum('role', UserRole::class)) {
             UserRole::Student => [
                 ...$base,
-                'profile.registration_number' => ['nullable', 'string', 'max:50', Rule::unique('students', 'registration_number')->ignore($studentId)],
+                'profile.registration_number' => ['prohibited'],
                 'profile.department' => ['nullable', 'string', 'max:100'],
                 'profile.cgpa' => ['nullable', 'numeric', 'between:0,4'],
                 'profile.phone' => ['nullable', 'string', 'max:20'],
@@ -50,7 +50,7 @@ class UpdateUserRequest extends FormRequest
             ],
             UserRole::Teacher => [
                 ...$base,
-                'profile.employee_id' => ['nullable', 'string', 'max:50', Rule::unique('teachers', 'employee_id')->ignore($teacherId)],
+                'profile.employee_id' => ['prohibited'],
                 'profile.designation' => ['nullable', 'string', 'max:100'],
                 'profile.department' => ['nullable', 'string', 'max:100'],
                 'profile.phone' => ['nullable', 'string', 'max:20'],

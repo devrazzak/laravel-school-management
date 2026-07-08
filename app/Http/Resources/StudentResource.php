@@ -16,9 +16,11 @@ class StudentResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'user_id' => $this->user_id,
             'name' => $this->whenLoaded('user', fn() => $this->user->name),
             'email' => $this->whenLoaded('user', fn() => $this->user->email),
             'role' => $this->whenLoaded('user', fn() => $this->user->role),
+            'registration_number' => $this->registration_number,
             'phone' => $this->phone,
             'date_of_birth' => $this->date_of_birth?->format('Y-m-d'),
             'gender' => $this->gender,
